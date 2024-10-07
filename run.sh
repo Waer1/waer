@@ -72,6 +72,8 @@ display_options() {
             echo "HANDLER=amazonS3" >>.env
 
             file_to_mount=".env"
+            docker_image="roxcustody/amazons3"
+
             ;;
         2)
             echo "You chose One Drive."
@@ -89,6 +91,8 @@ display_options() {
             done
 
             file_to_mount="credentials.json"
+            docker_image="roxcustody/one_drive"
+
             ;;
         3)
             echo "You chose Google Drive."
@@ -107,6 +111,8 @@ display_options() {
             done
 
             file_to_mount="credentials.json"
+            docker_image="roxcustody/google_drive"
+
             ;;
         4)
             echo "You chose Dropbox."
@@ -122,6 +128,8 @@ display_options() {
             echo "HANDLER=dropbox" >>.env
 
             file_to_mount=".env"
+            docker_image="roxcustody/dropbox"
+
             ;;
         *)
             echo "Invalid choice. Please select a number between 1 and 4."
@@ -168,5 +176,5 @@ echo "CUSTODY_URL=http://${corporate_subdomain}.localhost:4000/api" >>.env
 # Run the Docker container with the file mounted
 echo "Running the application on $user_domain:$user_port... $file_to_mount"
 
-docker run -d -p $user_port:3000 -v "$(pwd)/$file_to_mount":/usr/src/app/$file_to_mount -v "$(pwd)/.env":/usr/src/app/.env rox-api-approval
+docker run -d -p $user_port:3000 -v "$(pwd)/$file_to_mount":/usr/src/app/$file_to_mount -v "$(pwd)/.env":/usr/src/app/.env $docker_image
 echo "Container is running on port $user_port and $file_to_mount has been added inside the container."
