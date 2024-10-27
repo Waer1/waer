@@ -180,7 +180,7 @@ user_port=$(find_available_port)
 # CONST ENVS
 echo "PORT=3000" >>.env
 echo "URL=http://$user_domain:$user_port" >>.env
-echo "CUSTODY_URL=https://${corporate_subdomain}.custody-demo.roxcustody.io/api" >>.env
+echo "CUSTODY_URL=https://${corporate_subdomain}.api-custody.roxcustody.io/api" >>.env
 
 # Run the Docker container with the file mounted
 echo "Running the application on $user_domain:$user_port... $file_to_mount"
