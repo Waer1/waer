@@ -138,35 +138,44 @@ display_options() {
     esac
 }
 
+# Find an available port
+find_available_port() {
+    local start_port=3000
+    local end_port=65535
+
+    for port in $(seq $start_port $end_port); do
+        if ! nc -z localhost $port; then
+            echo $port
+            return 0
+        fi
+    done
+    echo "No available port found in range $start_port-$end_port."
+    exit 1
+}
+
 # Use the first argument passed to the script as the user's choice
 display_options "$1"
 
 # ask the user for the domain or the ip of the vm
-read -p "Please enter the domain or the ip of the vm: " user_domain
+read -p "Please add the ip of this machine : " user_domain
 
 echo "Domain or IP: $user_domain"
 
-
 # Validate the domain or the IP
-# if ! [[ "$user_domain" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && ! [[ "$user_domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$ ]]; then
-#     echo "Invalid domain or IP. Please enter a valid domain or IP."
-#     exit 1
-# fi
+if ! [[ "$user_domain" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && ! [[ "$user_domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$ ]]; then
+    echo "Invalid domain or IP. Please enter a valid domain or IP."
+    exit 1
+fi
 
-read -p "please enter the subdomain of your Corporate: " corporate_subdomain
+read -p "Please add your RoxCustody's subdomain (your subdomain.roxcustody.io): " corporate_subdomain
 
-read -p "Please enter the API key From Custody: " api_key
+read -p "Please add your self custody manager (SCM) key: " api_key
 echo "API_KEY=$api_key" >>.env
 echo "DOMAIN=$user_domain" >>.env
 
-# Ask for the port number
-read -p "Please enter the port you would like to run the application on: " user_port
 
-# Validate the port number
-if [[ ! "$user_port" =~ ^[0-9]+$ ]] || [ "$user_port" -lt 1 ] || [ "$user_port" -gt 65535 ]; then
-    echo "Invalid port number. Please enter a valid port number between 1 and 65535."
-    exit 1
-fi
+# Automatically select a port
+user_port=$(find_available_port)
 
 # CONST ENVS
 echo "PORT=3000" >>.env
