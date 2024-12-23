@@ -124,8 +124,12 @@ configure_file() {
         read -p "Enter the full path to your $service_name $file_name: " drive_path
         drive_path="${drive_path/#\~/$HOME}" # Expand ~ to home directory
         if [[ -f "$drive_path" ]]; then
-            cp "$drive_path" "$(dirname "$0")/credentials.json"
-            echo "Credentials copied to script's directory. $(dirname "$0")/credentials.json"
+
+            # read the file and write it to the credentials file
+            while IFS= read -r line; do
+                echo "$line" >>"credentials.json"
+            done <"$drive_path"
+
             file_to_mount="credentials.json"
             break
         else
@@ -271,7 +275,7 @@ user_port=$(find_available_port)
 
 write_to_env_file "PORT" "3000"
 write_to_env_file "URL" "http://$user_domain:$user_port"
-write_to_env_file "CUSTODY_URL" "https://${corporate_subdomain}.custody-dev.roxcustody.io/api"
+write_to_env_file "CUSTODY_URL" "https://${corporate_subdomain}.api-custody.roxcustody.io/api"
 
 
 # Add randomization using a random string or timestamp
@@ -312,9 +316,6 @@ docker pull "$docker_image"
 
 # Prepare the Docker image with the necessary environment variables
 prepare_docker_image "$docker_image" "$file_to_mount"
-
-# Remove credentials.json if it was copied to the script's directory
-rm "$(dirname "$0")/$file_to_mount"
 
 # Run the Docker container from the newly created image with the custom name
 echo "Running the application on $user_domain:$user_port with container name: $container_name..."
